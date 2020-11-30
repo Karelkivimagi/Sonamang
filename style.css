@@ -1,0 +1,38 @@
+#nStart {
+    text-align: center;
+    margin-top: 15px;
+  }
+body {
+    background-color: #d1d1d1;
+  }
+
+  .column {
+    padding: 50px;
+    background-color: #bebebe;
+    color: #000000;
+    text-align: center;
+    margin-left: 120px;
+    margin-right: 120px;
+  }
+  #container-3 {
+    text-align: center;
+    background-color: #bebebe;
+    border-radius: 15px;
+    color: #000000;
+    width: 75%;
+    padding: 10px;
+    margin-top: 135px!important;
+    margin: 0 auto;
+
+  }
+  #container-3 button {
+    height: 30px;
+    width: 30px;
+  }
+  #Start-btn {
+    background-color: #999999;
+    color: #000000;
+    font-size: 25px;
+    box-shadow: 0px;
+  }
+  
