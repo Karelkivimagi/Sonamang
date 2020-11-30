@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+</head>
+<body onload="TrueWord()">
+  <div class="container">
+    <div class="row">
+      <div class="column" id="guess1">
+      </div>
+      <div class="column" id="guess2">
+        <h2 id="guessStr"></h2>
+      </div>
+    </div>
+  </div>
+  <div id="nStart" hidden>
+    <button class="warning" id="Start-btn">Proovi uuesti</button>
+  </div>
+  <div id="container-3">
+    <div>
+      <button class="arva">A</button>
+      <button class="arva">B</button>
+      <button class="arva">C</button>
+      <button class="arva">D</button>
+      <button class="arva">E</button>
+      <button class="arva">F</button>
+      <button class="arva">G</button>
+      <button class="arva">H</button>
+      <button class="arva">I</button>
+      <button class="arva">J</button>
+      <button class="arva">K</button>
+      <button class="arva">L</button>
+      <button class="arva">M</button>
+    </div>
+    <div>
+      <button class="arva">N</button>
+      <button class="arva">O</button>
+      <button class="arva">P</button>
+      <button class="arva">Q</button>
+      <button class="arva">R</button>
+      <button class="arva">S</button>
+      <button class="arva">T</button>
+      <button class="arva">U</button>
+      <button class="arva">V</button>
+      <button class="arva">W</button>
+      <button class="arva">X</button>
+      <button class="arva">Y</button>
+      <button class="arva">Z</button>
+    </div>
+  </div>
+<script>
+
+class Singleton {
+  constructor(guessFalse, guessTrue) {
+    this.guessFalse = guessFalse;
+    this.guessTrue = guessTrue;
+    Singleton.instance = this;
+  }
+  static getInstance() {
+    if(!Singleton.instance) {
+        Singleton.instance = new Singleton(10,0);
+    }
+    return Singleton.instance;
+}
+}
+
+document.getElementById('Start-btn').onclick = function(){
+    const state = Singleton.getInstance();
+  document.getElementById("nStart").setAttribute('hidden',true);
+  document.getElementById('guessStr').style.color = "#000000";
+  $('.arva').prop('disabled',false);
+  var buttons = document.getElementsByClassName('arva');
+  for(button of buttons){button.style.background = "white";}
+  state.guessTrue = 0;
+  state.guessFalse = 10;
+  TrueWord();
+};
+
+function TrueWord(){
+  let ww = new XMLHttpRequest();
+  const key = "ab0d5274c4e036127a40d059f3c06ea27056d56b0e0300d75" 
+  const url = "https://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=-1&api_key="+key;
+  ww.open('GET',url,true);
+
+  ww.onload = function(){
+    if(this.status == 200){
+      let data = JSON.parse(this.responseText);
+      if(checkWord(data["word"])){
+        Game(data["word"]);
+      } else {
+        TrueWord();
+      }
+    }
+    else {
+      console.log("Connection Error");
+    }
+  }
+  ww.send();
+}
+
+function Game(word){
+    const state = Singleton.getInstance();
+  document.getElementById('guess1').innerHTML = `<h1>${state.guessFalse}</h1>`;
+  let wordArray = word.toUpperCase().split("");
+  let guessArray = [];
+  for(let i in word){
+    guessArray.push("_");
+  }
+  setGuess(guessArray);
+  var letters = document.getElementsByClassName('arva');
+  for(let letter of letters){
+    letter.onclick = function(){
+      letter.disabled = true;
+      let guess = this.firstChild.nodeValue;
+      if(word.toUpperCase().indexOf(guess) > -1){
+        checkGuess(guess, wordArray, guessArray)
+        this.style.background = "green";
+      } else {
+        this.style.background = "red";
+        state.guessFalse--;
+      }
+      document.getElementById('guess1').innerHTML = `<h1>${state.guessFalse}</h1>`;
+      if(state.guessTrue == wordArray.length){
+          Stop(true, word);
+          }
+     
+      else if(state.guessFalse <= 0) {
+          Stop(false, word);}
+    }
+  }
+}
+
+function checkWord(word){
+  if(word.length > 12){return false;}
+  let badChars = [" ","-",",",".","/"];
+  for(let char of badChars){
+    if(word.indexOf(char) > -1){return false;}
+  }
+  return true;
+}
+
+function checkGuess(guess, wordArray, guessArray){
+    const state = Singleton.getInstance();
+  for(let i in wordArray){
+    if(wordArray[i] == guess){
+      guessArray[i] = guess;
+      state.guessTrue++;
+    }
+  }
+  setGuess(guessArray);
+}
+
+function setGuess(guessArray){
+  let output = "";
+  for(let char of guessArray){ output += char + " ";}
+  document.getElementById('guessStr').innerHTML = `${output}`;
+}
+
+function Stop(result, word){
+  $('.arva').prop('disabled',true);
+  document.getElementById("nStart").removeAttribute('hidden');
+  if(result){
+    document.getElementById('guess1').innerHTML = `<h1>Õige sõna!</h1>`;
+
+  } else {
+    document.getElementById('guess1').innerHTML = `<h1>Sa ei arvanud sõna ära!</h1>`;
+    document.getElementById('guessStr').innerHTML = `${word.toUpperCase()}`;
+  }
+}
+
+</script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+</body>
+</html>
